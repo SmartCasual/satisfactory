@@ -1,9 +1,16 @@
 require_relative "collection"
 require_relative "upstream_record_finder"
 
-# FIXME: This whole class needs a tidy up
 module Satisfactory
+  # Represents a usage of a type.
+  #
+  # @todo This whole class needs a tidy up
   class Record # rubocop:disable Metrics/ClassLength
+    # @api private
+    # @param type [Symbol] The type of record to create.  Must be a known factory.
+    # @param factory_name [Symbol] The name of the factory to use (if different).
+    # @param upstream [Satisfactory::Record, Satisfactory::Collection, Satisfactory::Root] The upstream record-ish.
+    # @param attributes [Hash] The attributes to use when creating the record.
     def initialize(type:, factory_name: nil, upstream: nil, attributes: {})
       @factory_name = factory_name || type
 
@@ -22,8 +29,17 @@ module Satisfactory
       end
     end
 
+    # @api private
     attr_accessor :type, :type_config, :traits, :upstream, :factory_name, :attributes
 
+    # Add an associated record to this record's build plan.
+    #
+    # @param count [Integer] The number of records to create.
+    # @param downstream_type [Symbol] The type of record to create.
+    # @param force [Boolean] Whether to force the creation of the record.
+    #   For internal use only.  Use {#and} instead.
+    # @param attributes [Hash] The attributes to use when creating the record.
+    # @return [Satisfactory::Record, Satisfactory::Collection]
     def with(count = nil, downstream_type, force: false, **attributes) # rubocop:disable Style/OptionalArguments, Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
       if singular?(downstream_type)
         if count && count > 1 # rubocop:disable Style/IfUnlessModifier
@@ -49,23 +65,42 @@ module Satisfactory
       end
     end
 
-    def and(*args)
-      upstream.with(*args, force: true)
+    # Add a sibling record to the parent record's build plan.
+    # e.g. adding a second user to a project.
+    #
+    # @param count [Integer] The number of records to create.
+    # @param downstream_type [Symbol] The type of record to create.
+    # @param attributes [Hash] The attributes to use when creating the record.
+    # @return (see #with)
+    def and(count = nil, downstream_type, **attributes) # rubocop:disable Style/OptionalArguments
+      upstream.with(count, downstream_type, force: true, **attributes)
     end
 
+    # Apply one or more traits to this record's build plan.
+    #
+    # @param *traits [Symbol, ...] The traits to apply.
     def which_is(*traits)
       traits.each { |trait| self.traits << trait }
       self
     end
 
+    # Locate the nearest ancestor of the given type.
+    #
+    # @param upstream_type [Symbol] The type of ancestor to find.
+    # @return [Satisfactory::Record, Satisfactory::Collection, Satisfactory::Root]
     def and_same(upstream_type)
       Satisfactory::UpstreamRecordFinder.new(upstream:).find(upstream_type)
     end
 
+    # @api private
     def modify
       yield(self).upstream
     end
 
+    # Trigger the creation of this tree's build plan.
+    #
+    # @return (see Satisfactory::Root#create)
+    # @todo Check if we still need the upstream check.
     def create
       if upstream
         upstream.create
@@ -74,6 +109,9 @@ module Satisfactory
       end
     end
 
+    # Construct this tree's build plan.
+    #
+    # @return [Hash]
     def to_plan
       if upstream
         upstream.to_plan
@@ -82,16 +120,21 @@ module Satisfactory
       end
     end
 
+    # @api private
     def build_plan
       {
         traits:,
       }.merge(associations_plan).compact_blank
     end
 
+    # @api private
+    # @return (see #reify)
     def build
       reify(:build)
     end
 
+    # @api private
+    # @return (see #reify)
     def create_self
       reify(:create)
     end
@@ -100,6 +143,7 @@ module Satisfactory
 
     attr_reader :associations
 
+    # @return [ApplicationRecord]
     def reify(method)
       FactoryBot.public_send(method, factory_name, *traits, attributes.merge(associations.transform_values(&:build)))
     end

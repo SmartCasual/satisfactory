@@ -1,4 +1,7 @@
 module Satisfactory
+  # Finds the upstream record of a given type.
+  #
+  # @api private
   class UpstreamRecordFinder
     def initialize(upstream:)
       @upstream = upstream
@@ -21,6 +24,7 @@ module Satisfactory
       upstream.with(*args, force: true, **kwargs)
     end
 
+    # @api private
     class MissingUpstreamRecordError < StandardError; end
   end
 end

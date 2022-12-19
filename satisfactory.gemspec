@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   spec.files = Dir.chdir(__dir__) do
     `git ls-files -z`.split("\x0").reject do |f|
-      (f == __FILE__) || f.match(%r{\A(?:(?:bin|test|spec|features)/|\.(?:git|travis|circleci)|appveyor)})
+      (f == __FILE__) || f.match(%r{\A(?:(?:bin|test|spec|features)/|\.(?:git|circleci))})
     end
   end
   spec.bindir = "bin"
@@ -30,4 +30,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "factory_bot_rails", "~> 6.2"
 
   spec.add_development_dependency "rubocop", "~> 1.40"
+  spec.add_development_dependency "yard", "~> 0.9"
 end
