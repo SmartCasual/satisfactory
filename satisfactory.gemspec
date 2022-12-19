@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) {
     Dir[
-      "{bin,lib}/**/*",
+      "lib/**/*",
       "CHANGELOG.md",
       "LICENCE",
       "Rakefile",
@@ -28,8 +28,6 @@ Gem::Specification.new do |spec|
     ]
   }
 
-  spec.bindir = "bin"
-  spec.executables = spec.files.grep(%r{\Abin/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
   spec.add_dependency "factory_bot_rails", "~> 6.2"
