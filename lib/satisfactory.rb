@@ -1,8 +1,12 @@
-# frozen_string_literal: true
-
-require_relative "satisfactory/version"
+require_relative "satisfactory/loader"
+require_relative "satisfactory/root"
 
 module Satisfactory
-  class Error < StandardError; end
-  # Your code goes here...
+  def self.root
+    Root.new
+  end
+
+  def self.factory_configurations
+    @factory_configurations ||= Loader.factory_configurations
+  end
 end
