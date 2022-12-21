@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    satisfactory (0.2.0)
+    satisfactory (0.2.1)
       factory_bot_rails (~> 6.2)
 
 GEM

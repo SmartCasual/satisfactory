@@ -9,6 +9,8 @@ module Satisfactory
 
     attr_accessor :upstream
 
+    delegate :create, :with_new, to: :upstream
+
     def find(type)
       raise MissingUpstreamRecordError, type if upstream.nil?
 
