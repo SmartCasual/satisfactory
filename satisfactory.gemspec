@@ -22,7 +22,6 @@ Gem::Specification.new do |spec|
       "lib/**/*",
       "CHANGELOG.md",
       "LICENCE",
-      "Rakefile",
       "README.md",
       "satisfactory.gemspec",
     ]
@@ -31,7 +30,4 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "factory_bot_rails", "~> 6.2"
-
-  spec.add_development_dependency "rubocop", "~> 1.40"
-  spec.add_development_dependency "yard", "~> 0.9"
 end

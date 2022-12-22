@@ -1,8 +1,20 @@
 source "https://rubygems.org"
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-# Specify your gem's dependencies in satisfactory.gemspec
+ruby "3.1.2"
+
 gemspec
 
+gem "byebug", "~> 11.1"
 gem "rake", "~> 13.0"
+gem "rspec", "~> 3.12"
+gem "rubocop", "~> 1.41"
+gem "yard", "~> 0.9"
 
-gem "rubocop", "~> 1.21"
+group :rails do
+  gem "database_cleaner", "~> 2.0"
+  gem "pg", "~> 1.4"
+  gem "puma", "~> 6.0"
+  gem "rails", "~> 7.0"
+  gem "rspec-rails", "~> 6.0"
+end
