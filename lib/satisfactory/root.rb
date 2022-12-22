@@ -43,5 +43,8 @@ module Satisfactory
     def upstream
       nil
     end
+
+    # @api private
+    class FactoryNotDefinedError < StandardError; end
   end
 end

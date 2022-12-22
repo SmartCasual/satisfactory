@@ -7,8 +7,24 @@ module Satisfactory
       @upstream = upstream
     end
 
+    # @api private
     attr_accessor :upstream
 
+    # @!method create
+    #   Delegates to the upstream record.
+    #   @return (see Satisfactory::Record#create)
+    #   @see Satisfactory::Record#create
+    # @!method with_new
+    #   Delegates to the upstream record.
+    #   @return (see Satisfactory::Record#with_new)
+    #   @see Satisfactory::Record#with_new
+    delegate :create, :with_new, to: :upstream
+
+    # Find the upstream record of the given type.
+    #
+    # @api private
+    # @param type [Symbol] The type of upstream record to find.
+    # @return [Satisfactory::Record, Satisfactory::Collection, Satisfactory::Root]
     def find(type)
       raise MissingUpstreamRecordError, type if upstream.nil?
 
@@ -20,6 +36,7 @@ module Satisfactory
       end
     end
 
+    # (see Satisfactory::Record#with)
     def with(*args, **kwargs)
       upstream.with(*args, force: true, **kwargs)
     end

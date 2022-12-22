@@ -65,6 +65,14 @@ module Satisfactory
       end
     end
 
+    # Same as {#with} but always creates a new record.
+    #
+    # @param (see #and)
+    # @return (see #with)
+    def with_new(count = nil, downstream_type, **attributes) # rubocop:disable Style/OptionalArguments
+      with(count, downstream_type, force: true, **attributes)
+    end
+
     # Add a sibling record to the parent record's build plan.
     # e.g. adding a second user to a project.
     #
@@ -78,7 +86,7 @@ module Satisfactory
 
     # Apply one or more traits to this record's build plan.
     #
-    # @param *traits [Symbol, ...] The traits to apply.
+    # @param traits [Symbol, ...] The traits to apply.
     def which_is(*traits)
       traits.each { |trait| self.traits << trait }
       self
@@ -91,11 +99,7 @@ module Satisfactory
     def and_same(upstream_type)
       Satisfactory::UpstreamRecordFinder.new(upstream:).find(upstream_type)
     end
-
-    # @api private
-    def modify
-      yield(self).upstream
-    end
+    alias return_to and_same
 
     # Trigger the creation of this tree's build plan.
     #
