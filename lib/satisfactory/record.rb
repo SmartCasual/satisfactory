@@ -149,7 +149,7 @@ module Satisfactory
 
     # @return [ApplicationRecord]
     def reify(method)
-      FactoryBot.public_send(method, factory_name, *traits, attributes.merge(associations.transform_values(&:build)))
+      FactoryBot.public_send(method, factory_name, *traits, provided_associations.merge(attributes))
     end
 
     def associations_plan
@@ -207,6 +207,10 @@ module Satisfactory
       end
 
       associations[name].last
+    end
+
+    def provided_associations
+      associations.transform_values(&:build).compact_blank
     end
   end
 end
