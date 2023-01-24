@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.3.2] - 2023-01-24
+
 - Add some missing proxy methods
 
 ## [0.3.1] - 2023-01-18
