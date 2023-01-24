@@ -47,6 +47,7 @@ module Satisfactory
     def and_same(upstream_type)
       Satisfactory::UpstreamRecordFinder.new(upstream:).find(upstream_type)
     end
+    alias return_to and_same
 
     # @api private
     def build

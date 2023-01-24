@@ -18,7 +18,11 @@ module Satisfactory
     #   Delegates to the upstream record.
     #   @return (see Satisfactory::Record#with_new)
     #   @see Satisfactory::Record#with_new
-    delegate :create, :with_new, to: :upstream
+    # @!method to_plan
+    #   Delegates to the upstream record.
+    #   @return (see Satisfactory::Record#with_new)
+    #   @see Satisfactory::Record#with_new
+    delegate :create, :with_new, :to_plan, to: :upstream
 
     # Find the upstream record of the given type.
     #

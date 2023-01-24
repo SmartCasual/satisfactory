@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Add some missing proxy methods
+
 ## [0.3.1] - 2023-01-18
 
 - Fix associations bug
