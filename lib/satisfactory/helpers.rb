@@ -13,7 +13,7 @@ module Satisfactory
 
     def blank?(value)
       case value
-      when Hash, Array, String
+      when Array, String
         value.empty?
       when NilClass, FalseClass
         true

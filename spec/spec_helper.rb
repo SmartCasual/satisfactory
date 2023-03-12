@@ -1,6 +1,6 @@
 Bundler.require(:default, :test)
 
-Dir[File.join(File.dirname(__FILE__), "test_factories", "**", "*.rb")].each do |file|
+Dir[File.join(File.dirname(__FILE__), "test_factories", "**", "*_factory.rb")].each do |file|
   require file
 end
 

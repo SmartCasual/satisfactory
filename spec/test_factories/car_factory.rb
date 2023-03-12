@@ -1,12 +1,11 @@
 class Car
-  attr_accessor :make, :model, :year, :color, :price
+  attr_accessor :make, :model, :year, :color, :price, :wheels, :engine
 
-  def initialize(make:, model:, year:, color:, price:)
+  def initialize(make:, model:, wheels:, engine:)
     @make = make
     @model = model
-    @year = year
-    @color = color
-    @price = price
+    @wheels = wheels
+    @engine = engine
   end
 end
 
@@ -14,14 +13,17 @@ FactoryBot.define do
   factory :car do
     make { "Honda" }
     model { "Civic" }
-    year { 2019 }
-    color { "blue" }
-    price { 20000 }
+
+    engine
+    wheels { build_list(:wheel, 4, car: instance) }
   end
 end
 
 Satisfactory.factory_configurations[:car] = {
-  associations: Hash.new { |h, k| h[k] = [] },
+  associations: {
+    plural: [:wheels],
+    singular: [:engine],
+  },
   model: Car,
   name: :car,
   parent: nil,

@@ -128,7 +128,7 @@ module Satisfactory
 
     # @api private
     def build_plan
-      compact_blank({ traits: }.merge(associations_plan))
+      compact_blank(relevant_build_info)
     end
 
     # @api private
@@ -177,7 +177,7 @@ module Satisfactory
     end
 
     def add_singular_association(name, factory_name:, force: false, attributes: {})
-      if force || associations[name].blank?
+      if force || blank?(associations[name])
         associations[name] = self.class.new(type: name, factory_name:, upstream: self, attributes:)
       else
         associations[name]
@@ -211,6 +211,10 @@ module Satisfactory
 
     def provided_associations
       compact_blank(associations.transform_values(&:build))
+    end
+
+    def relevant_build_info
+      { traits: }.merge(associations_plan).merge(attributes)
     end
   end
 end
