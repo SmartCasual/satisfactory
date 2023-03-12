@@ -6,6 +6,8 @@ module Satisfactory
   #
   # @todo This whole class needs a tidy up
   class Record # rubocop:disable Metrics/ClassLength
+    include Helpers
+
     # @api private
     # @param type [Symbol] The type of record to create.  Must be a known factory.
     # @param factory_name [Symbol] The name of the factory to use (if different).
@@ -126,9 +128,7 @@ module Satisfactory
 
     # @api private
     def build_plan
-      {
-        traits:,
-      }.merge(associations_plan).compact_blank
+      compact_blank({ traits: }.merge(associations_plan))
     end
 
     # @api private
@@ -153,7 +153,7 @@ module Satisfactory
     end
 
     def associations_plan
-      associations.transform_values(&:build_plan).compact_blank
+      compact_blank(associations.transform_values(&:build_plan))
     end
 
     def plural?(association_name)
@@ -210,7 +210,7 @@ module Satisfactory
     end
 
     def provided_associations
-      associations.transform_values(&:build).compact_blank
+      compact_blank(associations.transform_values(&:build))
     end
   end
 end

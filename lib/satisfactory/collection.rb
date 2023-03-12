@@ -3,6 +3,8 @@ require_relative "upstream_record_finder"
 module Satisfactory
   # Represents a collection of homogenous records.
   class Collection < Array
+    include Delegation
+
     # @api private
     def initialize(*args, upstream:, **kwargs, &block)
       super(*args, **kwargs, &block)

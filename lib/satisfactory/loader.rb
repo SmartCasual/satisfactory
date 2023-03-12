@@ -1,5 +1,3 @@
-require "factory_bot_rails"
-
 module Satisfactory
   # Loads factory configurations from FactoryBot.
   #
@@ -7,9 +5,14 @@ module Satisfactory
   class Loader
     class << self
       # Skips factories that don't have a model that inherits from ApplicationRecord.
+      # Does not run unless Rails is defined.
       #
-      # @return [{Symbol => Hash}] a hash of factory configurations by factory name
+      # @return {Symbol => Hash} a hash of factory configurations by factory name
       def factory_configurations # rubocop:disable Metrics/AbcSize
+        return {} unless defined?(Rails)
+
+        require "factory_bot_rails"
+
         FactoryBot.factories.each.with_object({}) do |(factory, model), configurations|
           next unless (model = factory.build_class)
           next unless model < ApplicationRecord

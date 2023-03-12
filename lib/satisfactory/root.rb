@@ -23,7 +23,7 @@ module Satisfactory
     end
 
     # @api private
-    # @return [Hash<Symbol, Array<ApplicationRecord>>]
+    # @return [Hash<Symbol, Array<T>>]
     def create
       @root_records.transform_values do |records|
         records.map(&:create_self)

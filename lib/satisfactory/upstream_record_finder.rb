@@ -1,8 +1,12 @@
+require_relative "delegation"
+
 module Satisfactory
   # Finds the upstream record of a given type.
   #
   # @api private
   class UpstreamRecordFinder
+    include Delegation
+
     def initialize(upstream:)
       @upstream = upstream
     end

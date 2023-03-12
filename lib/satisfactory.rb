@@ -1,3 +1,4 @@
+require_relative "satisfactory/helpers"
 require_relative "satisfactory/loader"
 require_relative "satisfactory/root"
 
@@ -16,7 +17,7 @@ module Satisfactory
     end
 
     # @api private
-    # @return (see Loader.factory_configurations)
+    # @return (see Loader.factory_configurations for Rails applications)
     def factory_configurations
       @factory_configurations ||= Loader.factory_configurations
     end
