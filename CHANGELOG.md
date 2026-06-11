@@ -1,4 +1,4 @@
-## [Unreleased]
+## [1.0.0] - 2026-06-11
 
 - Require Ruby >= 3.2, dropping end-of-life Ruby 3.1
 - Update the development toolchain to Ruby 3.4, Rails 8.0, RSpec 3.13, rspec-rails 7.0, and the latest RuboCop

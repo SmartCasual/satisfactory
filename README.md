@@ -94,4 +94,3 @@ https://github.com/SmartCasual/satisfactory.
 ## Licence
 
 Released under the [CC-BY-NC-SA-4.0](LICENCE) licence.
-

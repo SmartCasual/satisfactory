@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    satisfactory (0.3.2)
+    satisfactory (1.0.0)
       activesupport (>= 7.1)
       factory_bot (~> 6.4)
 
