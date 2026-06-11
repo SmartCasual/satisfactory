@@ -4,8 +4,8 @@ module Satisfactory
   # Represents a collection of homogenous records.
   class Collection < Array
     # @api private
-    def initialize(*args, upstream:, **kwargs, &block)
-      super(*args, **kwargs, &block)
+    def initialize(*, upstream:, **, &)
+      super(*, **, &)
       @upstream = upstream
     end
 

@@ -15,9 +15,9 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = spec.homepage
 
   spec.metadata["rubygems_mfa_required"] = "true"
-  spec.required_ruby_version = ">= 3.1.0"
+  spec.required_ruby_version = ">= 3.2.0"
 
-  spec.files = Dir.chdir(File.expand_path(__dir__)) {
+  spec.files = Dir.chdir(File.expand_path(__dir__)) do
     Dir[
       "lib/**/*",
       "CHANGELOG.md",
@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
       "README.md",
       "satisfactory.gemspec",
     ]
-  }
+  end
 
   spec.require_paths = ["lib"]
 

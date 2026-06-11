@@ -41,8 +41,8 @@ module Satisfactory
     end
 
     # (see Satisfactory::Record#with)
-    def with(*args, **kwargs)
-      upstream.with(*args, force: true, **kwargs)
+    def with(*, **)
+      upstream.with(*, force: true, **)
     end
 
     # @api private

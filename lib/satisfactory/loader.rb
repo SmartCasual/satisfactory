@@ -9,25 +9,28 @@ module Satisfactory
       # Skips factories that don't have a model that inherits from ApplicationRecord.
       #
       # @return [{Symbol => Hash}] a hash of factory configurations by factory name
-      def factory_configurations # rubocop:disable Metrics/AbcSize
-        FactoryBot.factories.each.with_object({}) do |(factory, model), configurations|
+      def factory_configurations
+        FactoryBot.factories.each.with_object({}) do |factory, configurations|
           next unless (model = factory.build_class)
           next unless model < ApplicationRecord
 
-          associations = associations_for(model)
-          parent_factory = factory.send(:parent)
-
-          configurations[factory.name] = {
-            associations: associations.transform_values { |a| a.map(&:name) },
-            model:,
-            name: factory.name,
-            parent: (parent_factory.name unless parent_factory.is_a?(FactoryBot::NullFactory)),
-            traits: factory.defined_traits.map(&:name),
-          }
+          configurations[factory.name] = configuration_for(factory, model)
         end
       end
 
     private
+
+      def configuration_for(factory, model)
+        parent_factory = factory.send(:parent)
+
+        {
+          associations: associations_for(model).transform_values { |a| a.map(&:name) },
+          model:,
+          name: factory.name,
+          parent: (parent_factory.name unless parent_factory.is_a?(FactoryBot::NullFactory)),
+          traits: factory.defined_traits.map(&:name),
+        }
+      end
 
       def associations_for(model)
         all = model.reflect_on_all_associations.reject(&:polymorphic?)
