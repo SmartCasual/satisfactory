@@ -1,3 +1,5 @@
+require "active_support/core_ext/module/delegation"
+
 module Satisfactory
   # Finds the upstream record of a given type.
   #

@@ -15,20 +15,11 @@ RSpec.describe Satisfactory::Loader do
   describe "an individual configuration" do
     subject(:configuration) { configurations[:application_form] }
 
-    it "records the factory name and model" do
-      expect(configuration[:name]).to eq(:application_form)
-      expect(configuration[:model]).to eq(ApplicationForm)
-    end
-
     it "splits associations into plural and singular" do
       expect(configuration[:associations]).to eq(
         plural: [:application_choices],
         singular: [:candidate],
       )
-    end
-
-    it "records the defined traits (by their String names)" do
-      expect(configuration[:traits]).to eq(["submitted"])
     end
 
     it "has no parent factory" do

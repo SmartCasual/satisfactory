@@ -9,6 +9,12 @@
 - Refresh the bundle for current platforms (Apple Silicon and Linux)
 - Replace the boilerplate README with real installation and usage instructions
 - Add a Rails-free unit suite characterising `Record`, `Collection`, `Root`, and `UpstreamRecordFinder`, plus a `Loader` spec
+- Depend on `factory_bot` and `activesupport` directly instead of `factory_bot_rails`, so the gem no longer pulls in a Railtie
+- Refactor `Record#with` into a small classifier plus focused helpers, removing all of its RuboCop disables
+- `Record#with(2, :racing_wheels)` (the plural of an STI child type) now works instead of raising "Unknown association"; the plural of a parentless singular now raises the clearer "Cannot create multiple of singular associations" error
+- Include provided attributes in the output of `#to_plan` / `#build_plan`
+- Show every association that was explicitly added in the build plan (including empty singular associations), rather than silently dropping empties
+- Drop the unused `model`, `name`, and `traits` fields from loaded factory configurations
 
 ## [0.3.2] - 2023-01-24
 

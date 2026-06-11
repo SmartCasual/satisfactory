@@ -11,6 +11,7 @@ gem "yard", "~> 0.9"
 
 group :rails do
   gem "database_cleaner", "~> 2.1"
+  gem "factory_bot_rails", "~> 6.4"
   gem "pg", "~> 1.5"
   gem "puma", "~> 6.4"
   gem "rails", "~> 8.0"

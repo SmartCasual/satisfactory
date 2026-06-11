@@ -1,3 +1,5 @@
+require "active_support/core_ext/module/delegation"
+
 require_relative "upstream_record_finder"
 
 module Satisfactory

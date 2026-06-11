@@ -1,10 +1,12 @@
+require "active_support/core_ext/enumerable"
+require "active_support/core_ext/object/blank"
+require "active_support/core_ext/string/inflections"
+
 require_relative "collection"
 require_relative "upstream_record_finder"
 
 module Satisfactory
   # Represents a usage of a type.
-  #
-  # @todo This whole class needs a tidy up
   class Record # rubocop:disable Metrics/ClassLength
     # @api private
     # @param type [Symbol] The type of record to create.  Must be a known factory.
@@ -30,7 +32,7 @@ module Satisfactory
     end
 
     # @api private
-    attr_accessor :type, :type_config, :traits, :upstream, :factory_name, :attributes
+    attr_reader :type, :type_config, :traits, :upstream, :factory_name, :attributes
 
     # Add an associated record to this record's build plan.
     #
@@ -40,26 +42,16 @@ module Satisfactory
     #   For internal use only.  Use {#and} instead.
     # @param attributes [Hash] The attributes to use when creating the record.
     # @return [Satisfactory::Record, Satisfactory::Collection]
-    def with(count = nil, downstream_type, force: false, **attributes) # rubocop:disable Style/OptionalArguments, Metrics/AbcSize, Metrics/MethodLength, Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
-      if singular?(downstream_type)
-        if count && count > 1 # rubocop:disable Style/IfUnlessModifier
-          raise ArgumentError, "Cannot create multiple of singular associations (e.g. belongs_to)"
-        end
+    def with(*arguments, force: false, **attributes)
+      count, downstream_type = parse_with_arguments(arguments)
 
-        add_singular_association(downstream_type, factory_name: downstream_type, force:, attributes:)
-      elsif plural?(downstream_type) && (singular = singular_from_plural(downstream_type))
-        add_plural_association(downstream_type, factory_name: singular, count:, force:, attributes:)
-      elsif (config = Satisfactory.factory_configurations[downstream_type])
-        singular = config[:parent] || downstream_type
-        plural = plural_from_singular(singular)
-        add_singular_for_plural_association(plural, singular:, factory_name: downstream_type, force:, attributes:)
-      elsif (config = Satisfactory.factory_configurations[downstream_type.to_s.singularize])
-        unless (parent = config[:parent])
-          raise ArgumentError, "Cannot create multiple of singular associations (e.g. belongs_to)"
-        end
-
-        plural = plural_from_singular(parent)
-        add_plural_association(plural, factory_name: downstream_type.to_s.singularize, count:, force:, attributes:)
+      case association_kind(downstream_type)
+      when :singular then add_singular(downstream_type, count:, force:, attributes:)
+      when :plural then add_plural(downstream_type, count:, force:, attributes:)
+      when :child then add_child(downstream_type, force:, attributes:)
+      when :child_collection then add_child_collection(downstream_type, count:, force:, attributes:)
+      when :singular_collection
+        raise ArgumentError, "Cannot create multiple of singular associations (e.g. belongs_to)"
       else
         raise ArgumentError, "Unknown association #{type}->#{downstream_type}"
       end
@@ -69,8 +61,8 @@ module Satisfactory
     #
     # @param (see #and)
     # @return (see #with)
-    def with_new(count = nil, downstream_type, **attributes) # rubocop:disable Style/OptionalArguments
-      with(count, downstream_type, force: true, **attributes)
+    def with_new(*, **attributes)
+      with(*, force: true, **attributes)
     end
 
     # Add a sibling record to the parent record's build plan.
@@ -80,8 +72,8 @@ module Satisfactory
     # @param downstream_type [Symbol] The type of record to create.
     # @param attributes [Hash] The attributes to use when creating the record.
     # @return (see #with)
-    def and(count = nil, downstream_type, **attributes) # rubocop:disable Style/OptionalArguments
-      upstream.with(count, downstream_type, force: true, **attributes)
+    def and(*, **attributes)
+      upstream.with(*, force: true, **attributes)
     end
 
     # Apply one or more traits to this record's build plan.
@@ -104,7 +96,6 @@ module Satisfactory
     # Trigger the creation of this tree's build plan.
     #
     # @return (see Satisfactory::Root#create)
-    # @todo Check if we still need the upstream check.
     def create
       if upstream
         upstream.create
@@ -126,9 +117,9 @@ module Satisfactory
 
     # @api private
     def build_plan
-      {
-        traits:,
-      }.merge(associations_plan).compact_blank
+      plan = associations_plan
+      plan[:traits] = traits if traits.any?
+      plan.merge(attributes)
     end
 
     # @api private
@@ -152,8 +143,60 @@ module Satisfactory
       FactoryBot.public_send(method, factory_name, *traits, provided_associations.merge(attributes))
     end
 
+    # Split the variadic positional arguments to {#with} into an optional count
+    # and the downstream type.  Supports `with(:type)` and `with(2, :types)`.
+    def parse_with_arguments(arguments)
+      *count, downstream_type = arguments
+      [count.first, downstream_type]
+    end
+
+    # Classify how +downstream_type+ relates to this record.
+    #
+    # @return [Symbol] one of +:singular+, +:plural+, +:child+,
+    #   +:child_collection+, +:singular_collection+ or +:unknown+.
+    def association_kind(downstream_type)
+      return :singular if singular?(downstream_type)
+      return :plural if plural?(downstream_type) && singular_from_plural(downstream_type)
+      return :child if Satisfactory.factory_configurations.key?(downstream_type)
+
+      config = Satisfactory.factory_configurations[downstream_type.to_s.singularize.to_sym]
+      return :unknown unless config
+
+      config[:parent] ? :child_collection : :singular_collection
+    end
+
+    def add_singular(downstream_type, count:, force:, attributes:)
+      raise ArgumentError, "Cannot create multiple of singular associations (e.g. belongs_to)" if count && count > 1
+
+      add_singular_association(downstream_type, factory_name: downstream_type, force:, attributes:)
+    end
+
+    def add_plural(downstream_type, count:, force:, attributes:)
+      singular = singular_from_plural(downstream_type)
+      add_plural_association(downstream_type, factory_name: singular, count:, force:, attributes:)
+    end
+
+    def add_child(downstream_type, force:, attributes:)
+      config = Satisfactory.factory_configurations[downstream_type]
+      singular = config[:parent] || downstream_type
+      plural = plural_from_singular(singular)
+      add_singular_for_plural_association(plural, singular:, factory_name: downstream_type, force:, attributes:)
+    end
+
+    def add_child_collection(downstream_type, count:, force:, attributes:)
+      singular = downstream_type.to_s.singularize.to_sym
+      parent = Satisfactory.factory_configurations[singular][:parent]
+      plural = plural_from_singular(parent)
+      add_plural_association(plural, factory_name: singular, count:, force:, attributes:)
+    end
+
     def associations_plan
-      associations.transform_values(&:build_plan).compact_blank
+      associations.each_with_object({}) do |(name, association), plan|
+        sub_plan = association.build_plan
+        next if plural?(name) && sub_plan.empty?
+
+        plan[name] = sub_plan
+      end
     end
 
     def plural?(association_name)

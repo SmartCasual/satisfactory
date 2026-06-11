@@ -17,8 +17,5 @@ Satisfactory::UnitFactories.configurations[:wheel] = {
     plural: [],
     singular: [:car],
   },
-  model: Wheel,
-  name: :wheel,
   parent: nil,
-  traits: [:alloy],
 }

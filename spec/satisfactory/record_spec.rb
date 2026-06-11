@@ -41,7 +41,7 @@ RSpec.describe Satisfactory::Record do
 
         it "returns the existing record and ignores new attributes" do
           record.with(:engine, cylinders: 16).which_is(:turbo)
-          expect(record.build_plan).to eq(engine: { traits: %i[turbo] })
+          expect(record.build_plan).to eq(engine: { traits: %i[turbo], cylinders: 8 })
         end
 
         it "overrides the existing record when forced" do
@@ -87,22 +87,21 @@ RSpec.describe Satisfactory::Record do
       end
     end
 
-    # Record#with has a branch intended to handle the plural form of a child
-    # type (e.g. :racing_wheels), but it looks the type up with a String key
-    # (downstream_type.to_s.singularize) against the Symbol-keyed configuration
-    # hash, so the branch is currently unreachable and the call falls through to
-    # the "Unknown association" error. These specs pin that current behaviour.
     context "with the plural of a child type (STI)" do
-      it "raises, because the pluralised child lookup never matches" do
-        expect { record.with(2, :racing_wheels) }
-          .to raise_error(ArgumentError, "Unknown association car->racing_wheels")
+      it "adds the requested number under the parent's plural association" do
+        downstream = record.with(2, :racing_wheels)
+
+        expect(downstream).to be_a(Satisfactory::Collection)
+        expect(downstream.size).to eq(2)
+        expect(downstream).to all(be_a(described_class))
+        expect(downstream).to all(have_attributes(type: :wheel, factory_name: :racing_wheel))
       end
     end
 
     context "with the plural of a parentless singular type" do
-      it "raises, because the pluralised lookup never matches" do
+      it "raises, because you cannot have many of a belongs_to" do
         expect { record.with(:engines) }
-          .to raise_error(ArgumentError, "Unknown association car->engines")
+          .to raise_error(ArgumentError, "Cannot create multiple of singular associations (e.g. belongs_to)")
       end
     end
 
@@ -127,7 +126,7 @@ RSpec.describe Satisfactory::Record do
       engine = record.with(:engine)
       engine.and(:wheels)
 
-      expect(record.build_plan).to eq(wheels: [{}])
+      expect(record.build_plan).to eq(engine: {}, wheels: [{}])
     end
   end
 
@@ -150,7 +149,7 @@ RSpec.describe Satisfactory::Record do
       engine = record.with(:engine)
       engine.and_same(:car).with(:wheels)
 
-      expect(record.build_plan).to eq(wheels: [{}])
+      expect(record.build_plan).to eq(engine: {}, wheels: [{}])
     end
   end
 
@@ -164,14 +163,19 @@ RSpec.describe Satisfactory::Record do
       expect(record.build_plan).to eq(traits: %i[sporty])
     end
 
-    it "omits provided attributes" do
+    it "includes provided attributes" do
       car = described_class.new(type: :car, attributes: { make: "Tesla" })
-      expect(car.build_plan).to eq({})
+      expect(car.build_plan).to eq(make: "Tesla")
     end
 
-    it "drops a singular association that carries no traits" do
+    it "keeps an added singular association even when empty" do
+      record.with(:engine)
+      expect(record.build_plan).to eq(engine: {})
+    end
+
+    it "includes a singular association's attributes" do
       record.with(:engine, cylinders: 8)
-      expect(record.build_plan).to eq({})
+      expect(record.build_plan).to eq(engine: { cylinders: 8 })
     end
 
     it "keeps a singular association that carries traits" do

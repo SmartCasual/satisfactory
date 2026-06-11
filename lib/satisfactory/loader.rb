@@ -1,4 +1,4 @@
-require "factory_bot_rails"
+require "factory_bot"
 
 module Satisfactory
   # Loads factory configurations from FactoryBot.
@@ -25,10 +25,7 @@ module Satisfactory
 
         {
           associations: associations_for(model).transform_values { |a| a.map(&:name) },
-          model:,
-          name: factory.name,
           parent: (parent_factory.name unless parent_factory.is_a?(FactoryBot::NullFactory)),
-          traits: factory.defined_traits.map(&:name),
         }
       end
 

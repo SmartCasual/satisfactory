@@ -22,10 +22,7 @@ Satisfactory::UnitFactories.configurations[:racing_wheel] = {
     plural: [],
     singular: [:car],
   },
-  model: nil,
-  name: :racing_wheel,
   parent: :wheel,
-  traits: [],
 }
 
 RSpec.configure do |config|
