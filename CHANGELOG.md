@@ -8,6 +8,7 @@
 - Share a single Gemfile between the gem and its dummy test app
 - Refresh the bundle for current platforms (Apple Silicon and Linux)
 - Replace the boilerplate README with real installation and usage instructions
+- Add a Rails-free unit suite characterising `Record`, `Collection`, `Root`, and `UpstreamRecordFinder`, plus a `Loader` spec
 
 ## [0.3.2] - 2023-01-24
 
